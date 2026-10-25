@@ -59,11 +59,25 @@
           <div class="row total"><span>Total Pembayaran</span><b id="total" style="color:#E67E22">Rp0</b></div>
           <h3 class="center">Metode Pembayaran</h3>
           <div class="pay-methods">
-            <div class="pay active" data-pay="COD"><span class="check">✓</span><div><b>COD</b><br><small>Bayar di Tempat</small></div></div>
-            <div class="pay" data-pay="QRIS"><div><b>QRIS</b><br><small>Scan kode QR</small></div></div>
+            <div class="pay active" data-pay="COD" id="payCOD"><span class="check">✓</span><div><b>COD</b><br><small>Bayar di Tempat</small></div></div>
+            <div class="pay" data-pay="QRIS" id="payQRIS"><div><b>QRIS</b><br><small>Scan kode QR</small></div></div>
           </div>
+
+          <div id="qrisBox" style="display:none; background:#EFF6FF; border:2px solid #2563EB; border-radius:16px; padding:16px; margin:12px 0; text-align:center;">
+            <p style="font-weight:800; font-size:14px;">Scan QRIS Bakso Pakde Gimin</p>
+            <p id="qrisTotal" style="color:#EF4444; font-weight:800; margin:6px 0 10px; font-size:14px;">Total: Rp0</p>
+            <img id="imgQris" src="qris-pakde-gimin.jpeg" style="width:280px; max-width:100%; border-radius:12px; border:2px solid #fff; background:#fff; padding:8px;" alt="QRIS">
+            <p style="font-size:11px; color:#475569; margin-top:8px;">NMID: ID1026570367007 - A01<br>SATU QRIS UNTUK SEMUA</p>
+            <div style="margin-top:14px; text-align:left; background:#fff; padding:12px; border-radius:10px; border:1px solid #DBEAFE;">
+              <label style="font-size:13px; font-weight:700; display:block; margin-bottom:6px;">📸 Upload Bukti Bayar (Wajib QRIS)</label>
+              <input type="file" id="buktiFile" accept="image/*" style="width:100%; padding:10px; border:1.5px dashed #94A3B8; border-radius:10px; background:#F8FAFC;">
+              <img id="previewBukti" style="display:none; width:100%; margin-top:10px; border-radius:10px; max-height:220px; object-fit:contain; border:1px solid #E2E8F0;">
+              <small id="buktiStatus" style="color:#16A34A; font-weight:600; display:none; margin-top:6px;">✅ Bukti terupload</small>
+            </div>
+          </div>
+
           <div class="form">
-            <button type="button" class="btn-lokasi">📍 Gunakan Lokasi Saya</button><p id="jarak"></p>
+            <button type="button" class="btn-lokasi" id="btnLokasi">📍 Gunakan Lokasi Saya</button><p id="jarak"></p>
             <input id="nama" placeholder="Nama Penerima" maxlength="50">
             <input id="wa" placeholder="No WA (contoh: 0812xxxx)" maxlength="15">
             <textarea id="alamat" placeholder="Alamat Lengkap" maxlength="200"></textarea>
