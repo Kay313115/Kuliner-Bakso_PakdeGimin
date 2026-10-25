@@ -1,4 +1,4 @@
-// app.js FIX - QRIS PASTI NONGOL
+// app.js FINAL - QRIS + SINKRON DASHBOARD - BENERIN SEMUA
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
@@ -19,11 +19,7 @@ let zona = "Pilih Lokasi";
 let metodeBayar = "COD";
 let buktiBase64 = "";
 let NOMOR_WARUNG_LU = "6281213660024";
-
-const menuData = {
-  20000: { name: "Bakso Biasa", price: 20000 },
-  26000: { name: "Bakso Mercon", price: 26000 }
-};
+const menuData = { 20000: { name: "Bakso Biasa", price: 20000 }, 26000: { name: "Bakso Mercon", price: 26000 } };
 
 function sanitize(str, max){
   if(!str) return '';
@@ -32,87 +28,8 @@ function sanitize(str, max){
   return s.trim();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-  if (id) { showTracking(id); return; }
-  
-  document.querySelectorAll('.btn-tambah').forEach(btn => {
-    btn.addEventListener('click', (e)=>{ e.preventDefault(); add(parseInt(btn.dataset.harga)); });
-  });
-
-  // FIX QRIS - PAKAI ID BIAR PASTI KE KLIK
-  document.getElementById('payCOD')?.addEventListener('click', function(){
-    metodeBayar = 'COD';
-    document.querySelectorAll('.pay').forEach(x=>x.classList.remove('active'));
-    this.classList.add('active');
-    document.getElementById('qrisBox').style.display = 'none';
-  });
-  
-  document.getElementById('payQRIS')?.addEventListener('click', function(){
-    metodeBayar = 'QRIS';
-    document.querySelectorAll('.pay').forEach(x=>x.classList.remove('active'));
-    this.classList.add('active');
-    let qrisBox = document.getElementById('qrisBox');
-    qrisBox.style.display = 'block';
-    let total = cart.reduce((s,i)=>s+(i.price*i.qty),0) + ongkir;
-    document.getElementById('qrisTotal').textContent = `Total Bayar: Rp${total.toLocaleString('id-ID')} - Scan & Bayar`;
-    
-    // FIX GAMBAR QRIS - COBA PNG DULU, KALAU GAGAL COBA JPEG
-    let imgQris = document.getElementById('imgQris');
-    imgQris.onerror = function(){
-      if(this.src.includes('.png')){
-        this.src = 'qris-pakde-gimin.jpeg';
-      } else if(this.src.includes('.jpeg')){
-        this.src = 'qris-pakde-gimin.jpg';
-      } else {
-        this.src = 'qris.jpg';
-      }
-    };
-    
-    qrisBox.scrollIntoView({behavior:'smooth', block:'center'});
-  });
-
-  // BACKUP: KALAU KLIK PAKAI DATA-PAY JUGA BISA
-  document.querySelectorAll('.pay').forEach(p => {
-    p.addEventListener('click', function(){
-      let pay = this.dataset.pay;
-      if(!pay) return;
-      metodeBayar = pay;
-      document.querySelectorAll('.pay').forEach(x=>x.classList.remove('active'));
-      this.classList.add('active');
-      let qrisBox = document.getElementById('qrisBox');
-      if(pay === 'QRIS'){
-        qrisBox.style.display = 'block';
-        let total = cart.reduce((s,i)=>s+(i.price*i.qty),0) + ongkir;
-        document.getElementById('qrisTotal').textContent = `Total Bayar: Rp${total.toLocaleString('id-ID')} - Scan & Bayar`;
-        qrisBox.scrollIntoView({behavior:'smooth', block:'center'});
-      } else {
-        qrisBox.style.display = 'none';
-      }
-    });
-  });
-
-  document.getElementById('buktiFile')?.addEventListener('change', (e)=>{
-    let file = e.target.files[0];
-    if(!file) return;
-    if(file.size > 2*1024*1024){ alert('Foto max 2MB ya kak!'); e.target.value=''; return; }
-    let reader = new FileReader();
-    reader.onload = (ev)=>{
-      buktiBase64 = ev.target.result;
-      let prev = document.getElementById('previewBukti');
-      prev.src = buktiBase64;
-      prev.style.display = 'block';
-      document.getElementById('buktiStatus').style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
-
-  document.getElementById('btnLokasi')?.addEventListener('click', getLocation);
-  document.querySelector('.btn-lokasi')?.addEventListener('click', getLocation);
-  document.getElementById('btn-buat-pesanan')?.addEventListener('click', buatPesanan);
-  setTimeout(renderBannerPesanan, 300);
-});
+window.metodeBayarGlobal = "COD";
+window.setMetodeBayar = function(m){ metodeBayar = m; window.metodeBayarGlobal = m; }
 
 function add(harga){
   let ex = cart.find(c=>c.price===harga);
@@ -174,15 +91,16 @@ async function buatPesanan(){
   let nama = sanitize(document.getElementById('nama').value, 50);
   let wa = document.getElementById('wa').value.replace(/[^0-9]/g,'').slice(0,15);
   let alamat = sanitize(document.getElementById('alamat').value, 200);
+  let metodeAktif = window.metodeBayarGlobal || metodeBayar;
   if(cart.length===0){ alert('Pilih menu dulu Jan!'); return; }
   if(!nama||!wa||!alamat){ alert('Isi Nama, WA, Alamat dulu!'); return; }
   if(ongkir===0){ alert('Klik Gunakan Lokasi Saya dulu!'); return; }
-  if(metodeBayar === 'QRIS' && !buktiBase64){
+  if(metodeAktif === 'QRIS' && !buktiBase64){
     alert('QRIS wajib upload bukti bayar dulu ya kak! 📸');
-    document.getElementById('qrisBox').scrollIntoView({behavior:'smooth'});
+    document.getElementById('qrisBox').scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
-  let data = { cart, subtotal: cart.reduce((s,i)=>s+(i.price*i.qty),0), ongkir, total: cart.reduce((s,i)=>s+(i.price*i.qty),0)+ongkir, nama, wa, alamat, zona, metode: metodeBayar, buktiBayar: buktiBase64 || "", status: 'menunggu', waktu: serverTimestamp() };
+  let data = { cart, subtotal: cart.reduce((s,i)=>s+(i.price*i.qty),0), ongkir, total: cart.reduce((s,i)=>s+(i.price*i.qty),0)+ongkir, nama, wa, alamat, zona, metode: metodeAktif, buktiBayar: buktiBase64 || "", status: 'menunggu', waktu: serverTimestamp() };
   try{
     const docRef = await addDoc(collection(db, "pesanan"), data);
     const idBaru = docRef.id;
@@ -192,7 +110,7 @@ async function buatPesanan(){
     history.pushState({},'', '?id='+idBaru);
     onSnapshot(doc(db, "pesanan", idBaru), (snap)=>{ if(snap.exists()) renderTrackData({id:snap.id, ...snap.data()}); });
     setTimeout(()=>{
-      let pesan = `🔥 PESANAN BARU #${idBaru.slice(0,5)}\nNama: ${nama}\nWA: ${wa}\nAlamat: ${alamat}\nTotal: Rp${data.total.toLocaleString('id-ID')}\nMetode: ${metodeBayar}`;
+      let pesan = `🔥 PESANAN BARU #${idBaru.slice(0,5)}\nNama: ${nama}\nWA: ${wa}\nAlamat: ${alamat}\nTotal: Rp${data.total.toLocaleString('id-ID')}\nMetode: ${metodeAktif}`;
       window.open(`https://wa.me/${NOMOR_WARUNG_LU}?text=${encodeURIComponent(pesan)}`, '_blank');
     }, 800);
   }catch(e){ alert("Gagal: "+e.message); }
@@ -212,6 +130,7 @@ function renderTrackData(data){
   document.getElementById('track-alamat').textContent = data.alamat || '-';
   document.getElementById('track-total').textContent = 'Rp'+Number(data.total||0).toLocaleString('id-ID');
   let list = document.getElementById('track-list');
+  if(!list) return;
   list.innerHTML = '';
   (data.cart||[]).forEach(c=>{
     let row = document.createElement('div'); row.className='row';
@@ -219,8 +138,51 @@ function renderTrackData(data){
     let b = document.createElement('b'); b.textContent = `Rp${(c.price*c.qty).toLocaleString('id-ID')}`;
     row.append(s,b); list.appendChild(row);
   });
+  updateStep(data.status);
 }
-function kembaliKeMenu(){ history.pushState({},'','index.html'); document.getElementById('track-view').style.display='none'; document.getElementById('menu-view').style.display='block'; cart=[]; ongkir=0; zona="Pilih Lokasi"; buktiBase64=""; document.getElementById('jarak').textContent=''; document.querySelectorAll('.btn-tambah').forEach(b=>{b.style.display='block'}); document.querySelectorAll('.qty-control').forEach(b=>{b.style.display='none'}); updateUI(); renderBannerPesanan(); }
+// INI YANG BIKIN SINKRON SAMA DASHBOARD - SUPPORT SEMUA STATUS
+function updateStep(status){
+  if(!status) status = 'menunggu';
+  status = String(status).toLowerCase().trim();
+  let current = 0;
+  if(status === 'menunggu' || status.includes('tunggu') || status.includes('terima') || status === 'diterima') current = 0;
+  else if(status === 'disiapkan' || status === 'diproses' || status === 'dimasak' || status.includes('proses') || status.includes('siap') || status.includes('masak')) current = 1;
+  else if(status === 'diantar' || status === 'kurir' || status.includes('antar') || status.includes('kurir')) current = 2;
+  else if(status === 'selesai' || status.includes('selesai') || status.includes('sampai')) current = 3;
+  for(let i=0;i<4;i++){
+    let el = document.getElementById('step-'+i);
+    if(!el) continue;
+    let dot = el.querySelector('.dot');
+    let line = el.querySelector('.line');
+    el.classList.remove('done','active');
+    if(dot){ dot.className='dot todo'; dot.textContent='○'; }
+    if(line) line.classList.remove('done');
+    if(i < current){ el.classList.add('done'); if(dot){ dot.className='dot done'; dot.textContent='✓'; } if(line) line.classList.add('done'); }
+    else if(i === current){ el.classList.add('active'); if(dot){ dot.className='dot active'; dot.textContent='●'; } }
+  }
+}
+function kembaliKeMenu(){ history.pushState({},'','index.html'); document.getElementById('track-view').style.display='none'; document.getElementById('menu-view').style.display='block'; cart=[]; ongkir=0; zona="Pilih Lokasi"; buktiBase64=""; metodeBayar="COD"; window.metodeBayarGlobal="COD"; document.getElementById('jarak').textContent=''; document.querySelectorAll('.btn-tambah').forEach(b=>{b.style.display='block'}); document.querySelectorAll('.qty-control').forEach(b=>{b.style.display='none'}); let qrisBox=document.getElementById('qrisBox'); if(qrisBox) qrisBox.style.display='none'; document.querySelectorAll('.pay').forEach(x=>x.classList.remove('active')); let payCOD=document.getElementById('payCOD'); if(payCOD) payCOD.classList.add('active'); updateUI(); renderBannerPesanan(); }
 function renderBannerPesanan(){ let banner = document.getElementById('banner-pesanan'); if(!banner) return; let lastId = localStorage.getItem('last_id'); if(!lastId){ banner.style.display='none'; return; } banner.style.display='flex'; document.getElementById('banner-id').textContent = 'Pesanan #'+lastId.slice(0,5); }
 function bukaPesananTerakhir(){ let lastId = localStorage.getItem('last_id'); if(!lastId) return; showTracking(lastId); history.pushState({},'', '?id='+lastId); }
 window.ubahQty = ubahQty; window.kembaliKeMenu = kembaliKeMenu; window.bukaPesananTerakhir = bukaPesananTerakhir;
+window.setMetode = function(m){ metodeBayar = m; window.metodeBayarGlobal = m; document.querySelectorAll('.pay').forEach(x=>x.classList.remove('active')); let cod = document.getElementById('payCOD'); let qris = document.getElementById('payQRIS'); let box = document.getElementById('qrisBox'); if(m === 'COD'){ if(cod) cod.classList.add('active'); if(box) box.style.display = 'none'; } else { if(qris) qris.classList.add('active'); if(box){ box.style.display = 'block'; let total = cart.reduce((s,i)=>s+(i.price*i.qty),0)+ongkir; let qrisTotal=document.getElementById('qrisTotal'); if(qrisTotal) qrisTotal.textContent = `Total Bayar: Rp${total.toLocaleString('id-ID')} - Scan & Bayar`; setTimeout(()=>{ box.scrollIntoView({behavior:'smooth', block:'center'}); },100); } } }
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (id) { showTracking(id); return; }
+  document.querySelectorAll('.btn-tambah').forEach(btn => { btn.addEventListener('click', (e)=>{ e.preventDefault(); add(parseInt(btn.dataset.harga)); }); });
+  document.getElementById('payCOD')?.addEventListener('click', ()=>{ window.setMetode('COD'); });
+  document.getElementById('payQRIS')?.addEventListener('click', ()=>{ window.setMetode('QRIS'); });
+  document.querySelectorAll('.pay').forEach(p => { p.addEventListener('click', function(){ let m = this.dataset.pay; if(m) window.setMetode(m); }); });
+  document.getElementById('buktiFile')?.addEventListener('change', (e)=>{
+    let file = e.target.files[0]; if(!file) return;
+    if(file.size > 2*1024*1024){ alert('Foto max 2MB ya kak!'); e.target.value=''; return; }
+    let reader = new FileReader();
+    reader.onload = (ev)=>{ buktiBase64 = ev.target.result; let prev = document.getElementById('previewBukti'); if(prev){ prev.src = buktiBase64; prev.style.display = 'block'; } let status = document.getElementById('buktiStatus'); if(status) status.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('btnLokasi')?.addEventListener('click', getLocation);
+  let btnLokasiClass = document.querySelector('.btn-lokasi'); if(btnLokasiClass) btnLokasiClass.addEventListener('click', getLocation);
+  document.getElementById('btn-buat-pesanan')?.addEventListener('click', buatPesanan);
+  setTimeout(renderBannerPesanan, 300);
+});
