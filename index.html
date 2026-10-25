@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bakso Pakde Gimin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="phone">
+  <div id="menu-view">
+    <div class="top-bar">
+      <div class="header-orange">
+        <button onclick="history.back()">&lt;</button>
+        <h1>Menu Bakso</h1>
+        <div class="cart-icon">🛒<b id="badge">0</b></div>
+      </div>
+      <div class="warung-card">
+        <div>🍲</div>
+        <div><b>Bakso khas solo</b><br><small>Buka 09.00-18.00 • Jl. Rajawali 1 No.57</small></div>
+      </div>
+    </div>
+    <div id="banner-pesanan" style="display:none; margin:10px 16px; background:#FFF7ED; border:1.5px solid #EE9A3A; border-radius:12px; padding:12px; align-items:center; justify-content:space-between; gap:10px">
+      <div style="display:flex; gap:10px; align-items:center">
+        <div style="background:#EE9A3A; color:#fff; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center">🍲</div>
+        <div><b style="font-size:13px" id="banner-id">Pesanan BK00000</b><br><small style="color:#666" id="banner-status">Klik untuk lacak</small></div>
+      </div>
+      <button onclick="bukaPesananTerakhir()" style="background:#EE9A3A; color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer">Lihat</button>
+    </div>
+    <div class="white-sheet">
+      <div class="left-col">
+        <h2>Daftar Menu </h2>
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1547592180-85f173990554?w=300">
+          <div class="menu-info"><b>Bakso Biasa</b><p>Kuah gurih, mie,Toge, bawang goreng</p>
+            <div class="price-row"><span class="price">Rp20.000</span>
+              <button type="button" class="btn-tambah" data-harga="20000">+ Tambah</button>
+              <div class="qty-control" data-harga="20000" style="display:none"><button type="button" class="btn-qty" onclick="ubahQty(20000,-1)">−</button><span class="qty-num">0</span><button type="button" class="btn-qty" onclick="ubahQty(20000,1)">+</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300">
+          <div class="menu-info"><b>Bakso Mercon</b><p>Kuah pedas, cabai mercon, mie, pangsit goreng</p>
+            <div class="price-row"><span class="price">Rp26.000</span>
+              <button type="button" class="btn-tambah" data-harga="26000">+ Tambah</button>
+              <div class="qty-control" data-harga="26000" style="display:none"><button type="button" class="btn-qty" onclick="ubahQty(26000,-1)">−</button><span class="qty-num">0</span><button type="button" class="btn-qty" onclick="ubahQty(26000,1)">+</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right-col">
+        <div id="empty-state" class="empty"><p>🛒 Keranjang kosong</p><small>Silahkan Pilih Menu</small></div>
+        <div id="filled-state" style="display:none">
+          <h3 class="center">Pesanan</h3><div id="ringkasan-list"></div>
+          <h3 class="center">Rincian Harga</h3>
+          <div class="row"><span>Subtotal</span><b id="subtotal">Rp0</b></div>
+          <div class="row"><span>Ongkir — <span id="zona-text">Pilih Lokasi</span></span><b id="ongkir">Rp0</b></div>
+          <div class="row total"><span>Total Pembayaran</span><b id="total" style="color:#E67E22">Rp0</b></div>
+          <h3 class="center">Metode Pembayaran</h3>
+          <div class="pay-methods">
+            <div class="pay active" data-pay="COD"><span class="check">✓</span><div><b>COD</b><br><small>Bayar di Tempat</small></div></div>
+            <div class="pay" data-pay="QRIS"><div><b>QRIS</b><br><small>Scan kode QR</small></div></div>
+          </div>
+          <div class="form">
+            <button type="button" class="btn-lokasi">📍 Gunakan Lokasi Saya</button><p id="jarak"></p>
+            <input id="nama" placeholder="Nama Penerima" maxlength="50">
+            <input id="wa" placeholder="No WA (contoh: 0812xxxx)" maxlength="15">
+            <textarea id="alamat" placeholder="Alamat Lengkap" maxlength="200"></textarea>
+          </div>
+          <button type="button" id="btn-buat-pesanan" class="btn-orange">Buat Pesanan • <span id="btn-total">Rp0</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="track-view" style="display:none">
+    <div class="top-bar" style="background:#EE9A3A;color:#fff;padding:16px;text-align:center"><h2>🍲 Lacak Pesanan</h2><p id="id-pesanan" style="margin-top:6px;font-weight:700">ID: BK00000</p></div>
+    <div class="white-sheet">
+      <div class="row"><span>ID Pesanan</span><b id="track-id">-</b></div><div class="row"><span>Nama</span><b id="track-nama">-</b></div><div class="row"><span>Alamat</span><b id="track-alamat" style="max-width:60%;text-align:right">-</b></div><div class="row total"><span>Total</span><b id="track-total" style="color:#E67E22">Rp0</b></div><div id="track-list" style="margin-top:12px"></div>
+      <h3 class="center">Proses Pesanan</h3>
+      <div id="step-0" class="track-step"><div class="dot done">✓</div><div><div class="line done"></div><b>Pesanan Diterima</b><br><small>Warung sudah terima pesanan kamu</small></div></div>
+      <div id="step-1" class="track-step"><div class="dot todo">○</div><div><div class="line"></div><b>Sedang Dimasak</b><br><small>Bakso lagi direbus</small></div></div>
+      <div id="step-2" class="track-step"><div class="dot todo">○</div><div><div class="line"></div><b>Kurir Menuju Lokasi</b><br><small>Kurir ambil pesanan</small></div></div>
+      <div id="step-3" class="track-step"><div class="dot todo">○</div><div><b>Pesanan Sampai</b></div></div>
+      <button type="button" class="btn-orange" onclick="kembaliKeMenu()">Pesan Lagi</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+/* ===== RESET ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#FF7A1A;
+  --orange-light:#FFF4E8;
+  --bg:#F2F3F5;
+  --white:#fff;
+  --black:#101828;
+  --gray-200:#EAECF0;
+  --gray-500:#667085;
+  --green:#12B76A;
+}
+html,body{width:100%;overflow-x:hidden}
+body{
+  font-family:Inter,system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--black);
+}
+
+/* ===== PHONE CONTAINER - RESPONSIVE FIX ===== */
+.phone{
+  width:100%;
+  max-width:420px;
+  margin:0 auto;
+  background:#F6F6F6;
+  min-height:100vh;
+  min-height:100dvh;
+  position:relative;
+  padding-bottom:90px;
+}
+
+/* DI HP: FULL TANPA BAYANGAN */
+@media (max-width:480px){
+  .phone{
+    max-width:100%;
+    box-shadow:none;
+    border:none;
+    padding-bottom:80px;
+  }
+  body{background:#fff}
+}
+
+/* DI DESKTOP: TENGAH + CARD */
+@media (min-width:481px){
+  body{background:var(--bg);display:flex;justify-content:center;padding:20px 0}
+  .phone{
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 12px 40px rgba(16,24,40,.12);
+    border:1px solid var(--gray-200);
+  }
+}
+
+/* ===== TOP BAR ===== */
+.top-bar{background:#FF7A1A;position:sticky;top:0;z-index:20}
+.header-orange{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 16px;color:#fff;
+  padding-top:max(14px, env(safe-area-inset-top));
+}
+.header-orange h3{font-size:17px;font-weight:800}
+.header-orange button{
+  background:rgba(255,255,255,.2);border:none;color:#fff;
+  width:34px;height:34px;border-radius:10px;cursor:pointer
+}
+.cart-icon{position:relative}
+#badge{
+  position:absolute;top:-6px;right:-6px;background:#101828;color:#fff;
+  font-size:10px;font-weight:700;min-width:20px;height:20px;
+  border-radius:20px;display:flex;align-items:center;justify-content:center;
+  border:2px solid #FF7A1A;
+}
+
+/* ===== WARUNG CARD ===== */
+.warung-card{
+  margin:10px 16px 0;background:#fff;
+  border-radius:14px;padding:12px;display:flex;gap:10px;
+  font-size:13px;border:1px solid var(--gray-200);
+}
+
+/* ===== WHITE SHEET ===== */
+.white-sheet{
+  background:#fff;border-radius:20px 20px 0 0;
+  padding:16px;margin-top:12px;display:block;
+}
+@media (max-width:480px){
+  .white-sheet{border-radius:20px 20px 0 0;padding:16px 16px 24px}
+}
+.left-col{width:100%}
+.right-col{width:100%;margin-top:16px}
+
+/* ===== MENU ===== */
+.menu-item{
+  display:flex;gap:12px;border:1px solid #eee;border-radius:14px;
+  padding:10px;margin-bottom:12px;background:#fff;
+}
+.menu-item img{width:72px;height:72px;border-radius:10px;object-fit:cover;flex-shrink:0}
+.menu-info{flex:1;min-width:0}
+.menu-info p{font-size:12px;color:#666;margin:4px 0;word-break:break-word}
+.price-row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:8px}
+.price{font-weight:700;color:#E67E22}
+
+/* BUTTONS */
+.btn-tambah{
+  border:1.5px solid #EE9A3A;color:#EE9A3A;background:#FFF7ED;
+  border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap
+}
+.qty-control{display:flex;align-items:center;gap:6px;background:#101828;border-radius:20px;padding:4px}
+.btn-qty{width:26px;height:26px;border:none;border-radius:50%;background:#fff;color:#101828;font-weight:800;cursor:pointer}
+.qty-num{color:#fff;font-weight:700;min-width:18px;text-align:center;font-size:13px}
+
+/* RINGKASAN & FORM - ANTI MELEBER */
+.row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;border-bottom:1px dashed #eee;gap:10px}
+.form input,.form textarea{
+  width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin-bottom:8px;font-size:16px;
+}
+.form textarea{resize:none}
+.btn-lokasi{width:100%;padding:10px;border:1.5px dashed #EE9A3A;border-radius:10px;background:#fff;font-weight:600;cursor:pointer;margin-bottom:8px}
+.btn-orange{width:100%;background:#101828;color:#fff;border:none;padding:14px;border-radius:12px;font-weight:700;font-size:15px;margin-top:12px;cursor:pointer}
+
+#jarak{font-size:12px;color:#666;margin-bottom:8px;word-break:break-word}
+.center{text-align:center;margin:16px 0 10px;font-size:14px;font-weight:700}
+
+/* PAY */
+.pay-methods{display:flex;gap:10px;margin:10px 0;flex-wrap:wrap}
+.pay{flex:1;min-width:120px;border:1.5px solid #ddd;border-radius:10px;padding:10px;display:flex;gap:8px;cursor:pointer;background:#fff}
+.pay.active{border-color:#EE9A3A;background:#FFF7ED}
+.check{background:#27AE60;color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px}
+
+/* TRACKING */
+.track-step{display:flex;gap:12px;padding:12px 0;align-items:flex-start;position:relative}
+.track-step .dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #E2E8F0;background:#fff;flex-shrink:0}
+.track-step .line{width:2px;height:20px;background:#E2E8F0;position:absolute;left:14px;top:42px}
+.track-step.done .dot{background:#16A34A!important;border-color:#16A34A!important;color:#fff!important}
+.track-step.done .line{background:#16A34A!important}
+.track-step.active .dot{background:#F59E0B!important;border-color:#F59E0B!important;color:#fff!important}
+
+.order-card{border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:12px;background:#fff}
+.order-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
