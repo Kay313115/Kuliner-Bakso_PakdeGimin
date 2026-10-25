@@ -21,8 +21,8 @@ let buktiBase64 = "";
 let NOMOR_WARUNG_LU = "6281213660024";
 const menuData = { 20000: { name: "Bakso Biasa", price: 20000 }, 26000: { name: "Bakso Mercon", price: 26000 } };
 
-const WARUNG_LAT = -6.1785; 
-const WARUNG_LNG = 107.0590;
+const WARUNG_LAT = -6.17143; 
+const WARUNG_LNG = 107.037333;
 
 function sanitize(str, max){
   if(!str) return '';
