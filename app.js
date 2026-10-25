@@ -1,4 +1,4 @@
-// app.js FINAL - QRIS + SINKRON DASHBOARD - BENERIN SEMUA
+// app.js FINAL - QRIS + SINKRON + ONGKIR TIER TANPA MAX
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
@@ -21,6 +21,9 @@ let buktiBase64 = "";
 let NOMOR_WARUNG_LU = "6281213660024";
 const menuData = { 20000: { name: "Bakso Biasa", price: 20000 }, 26000: { name: "Bakso Mercon", price: 26000 } };
 
+const WARUNG_LAT = -6.186; 
+const WARUNG_LNG = 107.012;
+
 function sanitize(str, max){
   if(!str) return '';
   let s = String(str).slice(0, max);
@@ -29,8 +32,6 @@ function sanitize(str, max){
 }
 
 window.metodeBayarGlobal = "COD";
-window.setMetodeBayar = function(m){ metodeBayar = m; window.metodeBayarGlobal = m; }
-
 function add(harga){
   let ex = cart.find(c=>c.price===harga);
   if(ex) ex.qty++; else cart.push({...menuData[harga], qty:1});
@@ -83,9 +84,41 @@ function updateUI(){
     if(el) el.textContent = `Total Bayar: Rp${grand.toLocaleString('id-ID')} - Scan & Bayar`;
   }
 }
+function hitungJarak(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI / 180;
+  const dLng = (lng2-lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 function getLocation(){
-  document.getElementById('jarak').textContent = 'Mencari lokasi...';
-  setTimeout(()=>{ ongkir = 3000; zona = "Zona Sedang (2.0KM)"; document.getElementById('jarak').textContent = `📍 Jarak 2.0KM → ${zona} Rp${ongkir}`; updateUI(); },800);
+  let jarakEl = document.getElementById('jarak');
+  if(!jarakEl) return;
+  jarakEl.textContent = '📍 Mencari lokasi...';
+  jarakEl.style.color = '#666';
+  if(!navigator.geolocation){
+    jarakEl.textContent = '❌ GPS gak support - pakai default 3000';
+    ongkir = 3000; zona = "Dekat (2.0KM)"; updateUI(); return;
+  }
+  navigator.geolocation.getCurrentPosition((pos)=>{
+    let jarak = hitungJarak(WARUNG_LAT, WARUNG_LNG, pos.coords.latitude, pos.coords.longitude);
+    if(jarak <= 2.0){
+      ongkir = 3000; zona = `Dekat (${jarak.toFixed(1)}KM)`;
+    } else if(jarak <= 5.0){
+      ongkir = 5000; zona = `Sedang (${jarak.toFixed(1)}KM)`;
+    } else if(jarak <= 7.0){
+      ongkir = 7000; zona = `Jauh (${jarak.toFixed(1)}KM)`;
+    } else {
+      ongkir = 10000; zona = `Sangat Jauh (${jarak.toFixed(1)}KM)`;
+    }
+    jarakEl.innerHTML = `📍 Jarak ${jarak.toFixed(1)}KM → <b style="color:#16A34A">${zona} Rp${ongkir.toLocaleString('id-ID')}</b>`;
+    jarakEl.style.color = '#16A34A';
+    updateUI();
+  }, (err)=>{
+    jarakEl.textContent = '❌ Gagal ambil lokasi - pakai default 3000';
+    ongkir = 3000; zona = "Dekat (2.0KM)"; updateUI();
+  }, { enableHighAccuracy: true, timeout: 10000 });
 }
 async function buatPesanan(){
   let nama = sanitize(document.getElementById('nama').value, 50);
@@ -140,7 +173,6 @@ function renderTrackData(data){
   });
   updateStep(data.status);
 }
-// INI YANG BIKIN SINKRON SAMA DASHBOARD - SUPPORT SEMUA STATUS
 function updateStep(status){
   if(!status) status = 'menunggu';
   status = String(status).toLowerCase().trim();
